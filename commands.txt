@@ -13,3 +13,11 @@ SELECT * FROM transactions;  # View transaction data
 docker compose down
 docker volume rm ledger-service-main_postgres_data
 docker system prune -a --volumes
+
+
+#railway 
+psql "postgresql://postgres:BEfrhcsnzYUwGbJDFhMIOKwIoAsEZFob@shinkansen.proxy.rlwy.net:12080/railway"
+\i migrations/init.sql
+
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
