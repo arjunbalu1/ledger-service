@@ -251,7 +251,7 @@ func getExchangeRate(fromCurrency, toCurrency string, amount float64) (float64, 
 
 // GetBalance returns the current balance for a customer
 func GetBalance(c *gin.Context) {
-	customerID, err := uuid.Parse(c.Param("id"))
+	customerID, err := uuid.Parse(c.Param("customer_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid customer ID"})
 		return
