@@ -1,0 +1,15 @@
+docker compose up --build
+
+docker exec -i ledger-service-main-db-1 psql -U ledger -d ledger_db < migrations/init.sql
+
+# Connect to the database container
+docker exec -it ledger-service-main-db-1 psql -U ledger -d ledger_db
+
+# Once connected, you can run SQL commands:
+\dt                    # List all tables
+SELECT * FROM customers;  # View customer data
+SELECT * FROM transactions;  # View transaction data
+
+docker compose down
+docker volume rm ledger-service-main_postgres_data
+docker system prune -a --volumes
