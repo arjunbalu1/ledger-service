@@ -1,6 +1,6 @@
 # 🔐 Ledger Service
 
-A RESTful service that maintains customer balances and processes transactions. This service provides a simple backend financial system for managing customer accounts and transactions.
+A RESTful API service for managing customer accounts and transactions with multi-currency support.
 
 ## 🚀 Features
 
@@ -13,6 +13,8 @@ A RESTful service that maintains customer balances and processes transactions. T
 - ✅ Swagger/OpenAPI documentation
 - ✅ Docker support
 - ✅ Railway deployment
+- ✅ Multi-currency support (USD, EUR, GBP)
+- ✅ Real-time currency conversion using ExchangeRate-API
 
 ## 🌐 Live Demo
 
@@ -61,12 +63,13 @@ Response:
 
 ### 3. Get Current Balance
 ```bash
-GET /customers/{customer_id}/balance
+GET /customers/{customer_id}/balance?currency=EUR
 
 Response:
 {
   "customer_id": "550e8400-e29b-41d4-a716-446655440000",
-  "balance": 1200
+  "balance": 1104.00,  # Converted from USD to EUR
+  "currency": "EUR"
 }
 ```
 
@@ -147,7 +150,7 @@ Content-Type: application/json
 
 #### 3. Get Current Balance
 ```http
-GET http://localhost:8080/customers/{customer_id}/balance
+GET http://localhost:8080/customers/{customer_id}/balance?currency=EUR
 ```
 
 #### 4. View Transactions
@@ -171,6 +174,7 @@ GET http://localhost:8080/customers/{customer_id}/transactions?page=1&page_size=
 - **Containerization**: Docker
 - **Deployment**: Railway
 - **Documentation**: Swagger/OpenAPI
+- **Currency Conversion**: ExchangeRate-API
 
 ## 📝 Notes
 
