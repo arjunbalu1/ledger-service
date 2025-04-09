@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -203,39 +204,92 @@ func CreateTransaction(c *gin.Context) {
 	})
 }
 
-// @Summary Get customer balance
-// @Description Get the current balance for a customer
-// @Tags customers
-// @Produce json
-// @Param customer_id path string true "Customer ID" format(uuid)
-// @Success 200 {object} BalanceResponse "Balance retrieved successfully"
-// @Failure 400 {object} ErrorResponse "Invalid customer ID format"
-// @Failure 404 {object} ErrorResponse "Customer not found"
-// @Failure 500 {object} ErrorResponse "Internal server error"
-// @Router /customers/{customer_id}/balance [get]
+// Helper function to validate currency codes
+func isValidCurrency(currency string) bool {
+	validCurrencies := map[string]bool{
+		"USD": true,
+		"EUR": true,
+		"GBP": true,
+	}
+	return validCurrencies[currency]
+}
+
+// Function to get exchange rate
+func getExchangeRate(fromCurrency, toCurrency string, amount float64) (float64, error) {
+	apiKey := "1a7b5574bdb95f1770750778"
+	url := fmt.Sprintf("https://v6.exchangerate-api.com/v6/%s/pair/%s/%s/%.2f",
+		apiKey, fromCurrency, toCurrency, amount)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return 0, fmt.Errorf("failed to call exchange rate API: %v", err)
+	}
+	defer resp.Body.Close()
+
+	var result struct {
+		Result           string  `json:"result"`
+		Documentation    string  `json:"documentation"`
+		TermsOfUse       string  `json:"terms_of_use"`
+		TimeLastUpdate   int64   `json:"time_last_update_unix"`
+		TimeNextUpdate   int64   `json:"time_next_update_unix"`
+		BaseCode         string  `json:"base_code"`
+		TargetCode       string  `json:"target_code"`
+		ConversionRate   float64 `json:"conversion_rate"`
+		ConversionResult float64 `json:"conversion_result,omitempty"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return 0, fmt.Errorf("failed to decode exchange rate response: %v", err)
+	}
+
+	if result.Result != "success" {
+		return 0, fmt.Errorf("exchange rate API error: %s", result.Result)
+	}
+
+	return result.ConversionResult, nil
+}
+
+// GetBalance returns the current balance for a customer
 func GetBalance(c *gin.Context) {
-	customerID, err := uuid.Parse(c.Param("customer_id"))
+	customerID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid customer ID"})
 		return
 	}
 
-	var balance float64
-	err = db.QueryRow(c.Request.Context(),
+	// Get target currency from query parameter
+	targetCurrency := c.DefaultQuery("currency", "USD")
+	if !isValidCurrency(targetCurrency) {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid currency code"})
+		return
+	}
+
+	// Get customer's current balance
+	var currentBalance float64
+	err = db.QueryRow(context.Background(),
 		"SELECT balance FROM customers WHERE id = $1",
-		customerID).Scan(&balance)
+		customerID).Scan(&currentBalance)
+
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			c.JSON(http.StatusNotFound, ErrorResponse{Error: "Customer not found"})
 		} else {
-			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Failed to get balance"})
+			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Database error"})
 		}
 		return
 	}
 
-	c.JSON(http.StatusOK, BalanceResponse{
-		CustomerID: customerID,
-		Balance:    balance,
+	// Convert balance using Forex API
+	convertedBalance, err := getExchangeRate("USD", targetCurrency, currentBalance)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"customer_id": customerID,
+		"balance":     convertedBalance,
+		"currency":    targetCurrency,
 	})
 }
 
