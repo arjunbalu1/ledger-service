@@ -20,24 +20,6 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title           Ledger Service API
-// @version         1.0
-// @description     A simple ledger service that maintains customer balances and transactions.
-// @description     This service provides endpoints for managing customer accounts and processing financial transactions.
-// @host           ledger-service-production.up.railway.app
-// @BasePath       /
-// @schemes        https
-// @produce        json
-// @consumes       json
-// @contact.name   API Support
-// @contact.email  support@example.com
-// @license.name   MIT
-// @license.url    https://opensource.org/licenses/MIT
-// @tag.name       customers
-// @tag.description Operations about customers
-// @tag.name       transactions
-// @tag.description Operations about transactions
-
 func main() {
 	// Get configuration from environment variables
 	dbURL := os.Getenv("DATABASE_URL")

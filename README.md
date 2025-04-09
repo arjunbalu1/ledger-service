@@ -1,35 +1,30 @@
-# Ledger Service
+# 🔐 Ledger Service
 
 A RESTful service that maintains customer balances and processes transactions. This service provides a simple backend financial system for managing customer accounts and transactions.
 
-## Features
+## 🚀 Features
 
-- Create customer accounts with initial balance
-- Process credit and debit transactions
-- View current balance
-- View transaction history with pagination
-- Concurrent transaction safety
-- PostgreSQL database for persistence
-- Swagger/OpenAPI documentation
-- Docker support
+- ✅ Create customer accounts with initial balance
+- ✅ Process credit and debit transactions
+- ✅ View current balance
+- ✅ View transaction history with pagination
+- ✅ Concurrent transaction safety
+- ✅ PostgreSQL database for persistence
+- ✅ Swagger/OpenAPI documentation
+- ✅ Docker support
+- ✅ Railway deployment
 
-## Hosting
+## 🌐 Live Demo
 
-The service is hosted on Railway, with the application running in a container:
-- Application: https://ledger-service-production.up.railway.app
-- Database: PostgreSQL instance on Railway
-
-## API Documentation
-
-The API documentation is available at:
+The service is hosted on Railway:
+- API: https://ledger-service-production.up.railway.app
 - Swagger UI: https://ledger-service-production.up.railway.app/swagger/index.html
-- OpenAPI Spec: https://ledger-service-production.up.railway.app/swagger/doc.json
 
-## API Endpoints
+## 📚 API Documentation
 
 ### 1. Create Customer Account
 ```bash
-POST https://ledger-service-production.up.railway.app/customers
+POST /customers
 
 Request:
 {
@@ -47,7 +42,7 @@ Response:
 
 ### 2. Create Transaction
 ```bash
-POST https://ledger-service-production.up.railway.app/transactions
+POST /transactions
 
 Request:
 {
@@ -66,7 +61,7 @@ Response:
 
 ### 3. Get Current Balance
 ```bash
-GET https://ledger-service-production.up.railway.app/customers/{customer_id}/balance
+GET /customers/{customer_id}/balance
 
 Response:
 {
@@ -77,7 +72,7 @@ Response:
 
 ### 4. Get Transaction History (with Pagination)
 ```bash
-GET https://ledger-service-production.up.railway.app/customers/{customer_id}/transactions?page=1&page_size=10
+GET /customers/{customer_id}/transactions?page=1&page_size=10
 
 Response:
 [
@@ -86,74 +81,101 @@ Response:
     "type": "credit",
     "amount": 200,
     "timestamp": "2025-04-08T17:09:17Z"
-  },
-  ...
+  }
 ]
 ```
 
-## Local Development
+## 🛠️ Local Development
 
 ### Prerequisites
-- Go 1.24 or later
 - Docker and Docker Compose
-- PostgreSQL (for local development)
+- Git
 
 ### Quick Start
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/arjunbalu1/ledger-service.git
 cd ledger-service
 ```
 
-2. Set up environment variables:
+2. Start the application and database:
 ```bash
-cp .env.example .env
-# Edit .env with your local settings
+docker compose up --build
 ```
 
-3. Start PostgreSQL using Docker:
+3. Run database migrations:
 ```bash
-docker-compose up -d db
+docker exec -i ledger-service-main-db-1 psql -U ledger -d ledger_db < migrations/init.sql
 ```
 
-4. Run database migrations:
-```bash
-docker exec -i ledger-service-db-1 psql -U ledger -d ledger_db < migrations/init.sql
-```
+The service will be available at:
+- API: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger/index.html
 
-5. Start the service:
-```bash
-go mod download
-go run main.go
-```
-
-The service will be available at http://localhost:8080
-
-### Docker Deployment
-
-```bash
-docker-compose up --build
-```
-
-## Testing
+## 🧪 Testing
 
 ### Automated Tests
 ```bash
 go test ./...
 ```
 
-### Local Testing
-Use curl or Postman to test the endpoints. Examples are provided in the API Endpoints section above.
+### Manual Testing
 
-## Implementation Details
+#### 1. Create Customer Account
+```http
+POST http://localhost:8080/customers
+Content-Type: application/json
 
-### Concurrent Safety
-- Uses database transactions with row-level locking
-- Implements optimistic concurrency control
-- Ensures atomic operations for balance updates
+{
+  "name": "John Doe",
+  "initial_balance": 1000
+}
+```
 
-### Error Handling
-- Validates input data
-- Checks for insufficient balance
-- Provides meaningful error messages
+#### 2. Create Transaction
+```http
+POST http://localhost:8080/transactions
+Content-Type: application/json
+
+{
+  "customer_id": "YOUR_CUSTOMER_ID",
+  "type": "credit",
+  "amount": 200
+}
+```
+
+#### 3. Get Current Balance
+```http
+GET http://localhost:8080/customers/{customer_id}/balance
+```
+
+#### 4. View Transactions
+```http
+GET http://localhost:8080/customers/{customer_id}/transactions?page=1&page_size=10
+```
+
+## 🔒 Security Features
+
+- Database credentials managed through environment variables
+- Input validation for all API endpoints
+- Concurrent transaction safety using database transactions
+- Row-level locking for balance updates
+
+## 🏗️ Architecture
+
+- **Language**: Go
+- **Framework**: Gin
+- **Database**: PostgreSQL
+- **ORM**: pgx
+- **Containerization**: Docker
+- **Deployment**: Railway
+- **Documentation**: Swagger/OpenAPI
+
+## 📝 Notes
+
+- The service uses UUIDs for customer and transaction IDs
+- All monetary values are stored as float64
+- Transactions are atomic and concurrent-safe
+- Pagination is supported for transaction history
+- Health check endpoint available at `/health`
