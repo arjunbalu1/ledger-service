@@ -78,8 +78,10 @@ func main() {
 		// Check database connection
 		if err := conn.Ping(context.Background()); err != nil {
 			c.JSON(http.StatusServiceUnavailable, gin.H{
-				"status": "unhealthy",
-				"error":  "database connection failed",
+				"status":  "unhealthy",
+				"error":   "database connection failed",
+				"service": "ledger-service",
+				"version": "1.0",
 			})
 			return
 		}
