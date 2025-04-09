@@ -15,8 +15,9 @@ docker volume rm ledger-service-main_postgres_data
 docker system prune -a --volumes
 
 
-#railway 
-psql "postgresql://postgres:BEfrhcsnzYUwGbJDFhMIOKwIoAsEZFob@shinkansen.proxy.rlwy.net:12080/railway"
+#railway
+#please dont access lol
+psql "postgresql://postgres:BEfrhcsnzYUwGbJDFhMIOKwIoAsEZFob@shinkansen.proxy.rlwy.net:12080/railway" 
 \i migrations/init.sql
 
 DROP SCHEMA public CASCADE;
