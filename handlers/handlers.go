@@ -216,7 +216,7 @@ func isValidCurrency(currency string) bool {
 
 // Function to get exchange rate
 func getExchangeRate(fromCurrency, toCurrency string, amount float64) (float64, error) {
-	apiKey := "1a7b5574bdb95f1770750778"
+	apiKey := "1a7b5574bdb95f1770750778"		//pls dont use pls
 	url := fmt.Sprintf("https://v6.exchangerate-api.com/v6/%s/pair/%s/%s/%.2f",
 		apiKey, fromCurrency, toCurrency, amount)
 
